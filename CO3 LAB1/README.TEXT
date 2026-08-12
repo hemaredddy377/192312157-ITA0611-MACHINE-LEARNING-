@@ -1,0 +1,124 @@
+# ============================================================
+# NAIVE BAYES CLASSIFICATION
+# Confusion Matrix and Accuracy
+# Google Colab Ready
+# ============================================================
+
+# Import required libraries
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+
+# ------------------------------------------------------------
+# 1. Load Dataset
+# ------------------------------------------------------------
+
+iris = load_iris()
+
+X = iris.data
+y = iris.target
+
+print("Dataset Shape:", X.shape)
+print("Classes:", iris.target_names)
+
+
+# ------------------------------------------------------------
+# 2. Split Dataset into Training and Testing Data
+# ------------------------------------------------------------
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.30,
+    random_state=42,
+    stratify=y
+)
+
+print("\nTraining samples:", len(X_train))
+print("Testing samples :", len(X_test))
+
+
+# ------------------------------------------------------------
+# 3. Create Naive Bayes Classifier
+# ------------------------------------------------------------
+
+model = GaussianNB()
+
+
+# ------------------------------------------------------------
+# 4. Train the Model
+# ------------------------------------------------------------
+
+model.fit(X_train, y_train)
+
+
+# ------------------------------------------------------------
+# 5. Make Predictions
+# ------------------------------------------------------------
+
+y_pred = model.predict(X_test)
+
+
+# ------------------------------------------------------------
+# 6. Calculate Accuracy
+# ------------------------------------------------------------
+
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\n====================================")
+print("NAIVE BAYES RESULTS")
+print("====================================")
+
+print("\nAccuracy:", accuracy)
+print("Accuracy (%):", accuracy * 100)
+
+
+# ------------------------------------------------------------
+# 7. Display Confusion Matrix
+# ------------------------------------------------------------
+
+cm = confusion_matrix(y_test, y_pred)
+
+print("\nConfusion Matrix:")
+print(cm)
+
+
+# ------------------------------------------------------------
+# 8. Plot Confusion Matrix
+# ------------------------------------------------------------
+
+plt.figure(figsize=(7, 5))
+
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt="d",
+    cmap="Blues",
+    xticklabels=iris.target_names,
+    yticklabels=iris.target_names
+)
+
+plt.title("Naive Bayes - Confusion Matrix")
+plt.xlabel("Predicted Class")
+plt.ylabel("Actual Class")
+plt.show()
+
+
+# ------------------------------------------------------------
+# 9. Classification Report
+# ------------------------------------------------------------
+
+print("\nClassification Report:")
+print(
+    classification_report(
+        y_test,
+        y_pred,
+        target_names=iris.target_names
+    )
+)
