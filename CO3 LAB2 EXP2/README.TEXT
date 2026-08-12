@@ -1,0 +1,220 @@
+# ============================================================
+# BANK LOAN PREDICTION USING NAIVE BAYES
+# Google Colab Ready
+# ============================================================
+
+# Import required libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+
+# ------------------------------------------------------------
+# 1. Create Bank Loan Dataset
+# ------------------------------------------------------------
+
+data = {
+    'Age': [25, 35, 45, 28, 52, 40, 30, 48, 23, 55,
+            38, 42, 27, 50, 33, 46, 29, 58, 36, 41,
+            31, 49, 26, 44, 37, 53, 32, 47, 24, 39],
+
+    'Income': [25000, 45000, 70000, 30000, 90000, 60000, 40000, 80000,
+               22000, 95000, 55000, 65000, 28000, 85000, 50000, 75000,
+               35000, 100000, 52000, 62000, 42000, 82000, 26000, 68000,
+               58000, 92000, 38000, 78000, 24000, 57000],
+
+    'LoanAmount': [100000, 200000, 300000, 120000, 400000, 250000, 180000,
+                   350000, 90000, 450000, 220000, 280000, 110000, 380000,
+                   190000, 320000, 150000, 500000, 210000, 260000, 170000,
+                   360000, 100000, 290000, 240000, 420000, 160000, 340000,
+                   95000, 230000],
+
+    'CreditScore': [650, 720, 780, 660, 800, 750, 700, 790, 620, 810,
+                    730, 760, 640, 805, 710, 770, 680, 820, 725, 740,
+                    695, 785, 630, 765, 735, 795, 675, 775, 615, 745],
+
+    'EmploymentYears': [2, 8, 15, 3, 20, 10, 5, 18, 1, 22,
+                        12, 14, 2, 19, 7, 16, 4, 25, 9, 11,
+                        6, 17, 1, 13, 10, 21, 5, 18, 2, 12],
+
+    'LoanApproved': [
+        'No', 'Yes', 'Yes', 'No', 'Yes', 'Yes', 'Yes', 'Yes',
+        'No', 'Yes', 'Yes', 'Yes', 'No', 'Yes', 'Yes', 'Yes',
+        'No', 'Yes', 'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes',
+        'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes'
+    ]
+}
+
+df = pd.DataFrame(data)
+
+print("Bank Loan Dataset:")
+print(df.head())
+
+print("\nDataset Shape:", df.shape)
+
+
+# ------------------------------------------------------------
+# 2. Separate Input and Output
+# ------------------------------------------------------------
+
+X = df.drop('LoanApproved', axis=1)
+y = df['LoanApproved']
+
+
+# ------------------------------------------------------------
+# 3. Encode Target Variable
+# ------------------------------------------------------------
+
+encoder = LabelEncoder()
+
+y = encoder.fit_transform(y)
+
+# No = 0
+# Yes = 1
+
+print("\nEncoded Classes:")
+print(encoder.classes_)
+
+
+# ------------------------------------------------------------
+# 4. Split Dataset into Training and Testing Data
+# ------------------------------------------------------------
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.30,
+    random_state=42,
+    stratify=y
+)
+
+print("\nTraining Samples:", len(X_train))
+print("Testing Samples :", len(X_test))
+
+
+# ------------------------------------------------------------
+# 5. Create Naive Bayes Model
+# ------------------------------------------------------------
+
+model = GaussianNB()
+
+
+# ------------------------------------------------------------
+# 6. Train the Model
+# ------------------------------------------------------------
+
+model.fit(X_train, y_train)
+
+
+# ------------------------------------------------------------
+# 7. Predict Loan Approval
+# ------------------------------------------------------------
+
+y_pred = model.predict(X_test)
+
+
+# ------------------------------------------------------------
+# 8. Calculate Accuracy
+# ------------------------------------------------------------
+
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\n============================================")
+print("NAIVE BAYES BANK LOAN PREDICTION")
+print("============================================")
+
+print("\nAccuracy:", accuracy)
+print("Accuracy (%):", accuracy * 100)
+
+
+# ------------------------------------------------------------
+# 9. Confusion Matrix
+# ------------------------------------------------------------
+
+cm = confusion_matrix(y_test, y_pred)
+
+print("\nConfusion Matrix:")
+print(cm)
+
+
+# ------------------------------------------------------------
+# 10. Display Confusion Matrix
+# ------------------------------------------------------------
+
+plt.figure(figsize=(6, 5))
+
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt='d',
+    cmap='Blues',
+    xticklabels=['Not Approved', 'Approved'],
+    yticklabels=['Not Approved', 'Approved']
+)
+
+plt.title("Bank Loan Prediction - Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+
+# ------------------------------------------------------------
+# 11. Classification Report
+# ------------------------------------------------------------
+
+print("\nClassification Report:")
+
+print(
+    classification_report(
+        y_test,
+        y_pred,
+        target_names=['Not Approved', 'Approved']
+    )
+)
+
+
+# ------------------------------------------------------------
+# 12. Predict Loan Approval for a New Applicant
+# ------------------------------------------------------------
+
+# New applicant details:
+# Age = 35
+# Income = 60000
+# Loan Amount = 200000
+# Credit Score = 750
+# Employment Years = 8
+
+new_applicant = pd.DataFrame({
+    'Age': [35],
+    'Income': [60000],
+    'LoanAmount': [200000],
+    'CreditScore': [750],
+    'EmploymentYears': [8]
+})
+
+prediction = model.predict(new_applicant)
+
+probability = model.predict_proba(new_applicant)
+
+
+# ------------------------------------------------------------
+# 13. Display New Applicant Prediction
+# ------------------------------------------------------------
+
+print("\n============================================")
+print("NEW APPLICANT PREDICTION")
+print("============================================")
+
+if prediction[0] == 1:
+    print("Loan Status: APPROVED")
+else:
+    print("Loan Status: NOT APPROVED")
+
+print("\nPrediction Probabilities:")
+print("Not Approved:", probability[0][0])
+print("Approved    :", probability[0][1])
